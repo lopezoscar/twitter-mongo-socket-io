@@ -1,0 +1,118 @@
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+
+app.use(express.static(__dirname + '/public'));
+
+
+var twitter = require('twitter');
+var mongo = require("mongojs");
+
+
+var stringConnection = 'mongodb://localhost:27017/twitter';
+var db = mongo.connect(stringConnection,['tweets']);
+
+/**
+ * Socket.IO Listening connection from client. 
+ * @param  {Object} socket WebSocket connection (Client)
+ */
+io.on('connection', function(socket){
+        console.log('Socket.io connected');
+
+        //Listening track event from client
+        socket.on('track', function(key){
+
+	        console.log('tracking key ',key);
+
+		    var twitterApp = new TwitterApp(socket,db);
+		    twitterApp.track(key);
+
+        });
+        socket.on('disconnect', function(){
+          console.log('user disconnected');
+        });
+      });
+
+
+var TwitterApp = function(socket,db){
+
+  this.twit = new twitter({
+      consumer_key: 'WMPaYJPNVipyzUPBMhoZCA',
+      consumer_secret: 'iUOUnoZibqo04gLZsDWNbSQWdUJndSUahLsuNhlhNf8',
+      access_token_key: '237929077-J4MgNyfs0APKGZxwt4iYyS28s2yISin5zcQylnEB',
+      access_token_secret: 'KNZS5Za6ZbVvExbtEDH9jADC6xTowC67CyZQCUVgn0'
+  });
+  this.db = db;
+  this.socket = socket;
+
+
+  /**
+   * NO SEAS MALO. TODO evitar callback hell. 
+   * @param  {string} key key a trackear
+   * 
+   */
+  this.track = function(key){
+      var _this = this;
+
+      /**
+       * Listening filter event from twitter-node
+       */
+      this.twit.stream('filter', {track: key}, function(stream) {
+
+      stream.on('data', function(data) {
+          var message = data;
+          if(message){
+              console.log("Tweet: ",message);
+
+              /**
+               * Valid Tweet
+               */
+              if(message.user){
+                  socket.emit('tweet', JSON.stringify(message));
+                  console.log("@"+message.user.name);
+                  console.log(message.user["screen_name"]);
+
+                  /**
+                   * MongoDB Save
+                   */
+                  _this.save(message);
+              }
+
+          }else{
+              console.log('message empty');
+          }
+      });
+
+      stream.on('error',function(err){
+          console.log('err ',err);
+      });
+      stream.on('end',function(end){
+          console.log('end ',end);
+      });
+
+      // Disconnect stream after five seconds
+      //setTimeout(stream.destroy, 5000);
+      });
+
+      /**
+       * save tweet mongodb
+       * @param  {Object} tweet tweet as object
+       */
+      this.save = function(tweet){
+        this.db.tweets.save(tweet);
+      }
+  }
+}
+
+app.get('/', function(req, res){
+  res.sendfile('index.html');
+});
+
+http.listen(3000, function(){
+  console.log('listening on *:7000');
+});
+
+
+
