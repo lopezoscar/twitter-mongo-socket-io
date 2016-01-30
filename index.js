@@ -39,10 +39,7 @@ io.on('connection', function(socket){
 var TwitterApp = function(socket,db){
 
   this.twit = new twitter({
-      consumer_key: 'eTj9Xmuk5r9woFAnnkuieg',
-      consumer_secret: 'U5FHYvPXA6BP73FRmn6ijmOMj2aJOttgl5jFAsKZo',
-      access_token_key: '237929077-pu4UtvlYWVnUUvCzp1vsO6yJz2xvQNX8cJxkgab8',
-      access_token_secret: 'OLfePOTeGc8eoMN8xbcCNSxuNtd9Ea58X7C4uRa9IoHJO'
+      
   });
   this.db = db;
   this.socket = socket;
