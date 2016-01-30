@@ -12,7 +12,7 @@ var mongo = require("mongojs");
 
 
 var stringConnection = 'mongodb://localhost:27017/twitter';
-var db = mongo.connect(stringConnection,['tweets']);
+var db = mongo(stringConnection,['tweets']);
 
 /**
  * Socket.IO Listening connection from client. 
@@ -39,10 +39,10 @@ io.on('connection', function(socket){
 var TwitterApp = function(socket,db){
 
   this.twit = new twitter({
-      consumer_key: 'WMPaYJPNVipyzUPBMhoZCA',
-      consumer_secret: 'iUOUnoZibqo04gLZsDWNbSQWdUJndSUahLsuNhlhNf8',
-      access_token_key: '237929077-J4MgNyfs0APKGZxwt4iYyS28s2yISin5zcQylnEB',
-      access_token_secret: 'KNZS5Za6ZbVvExbtEDH9jADC6xTowC67CyZQCUVgn0'
+      consumer_key: 'eTj9Xmuk5r9woFAnnkuieg',
+      consumer_secret: 'U5FHYvPXA6BP73FRmn6ijmOMj2aJOttgl5jFAsKZo',
+      access_token_key: '237929077-pu4UtvlYWVnUUvCzp1vsO6yJz2xvQNX8cJxkgab8',
+      access_token_secret: 'OLfePOTeGc8eoMN8xbcCNSxuNtd9Ea58X7C4uRa9IoHJO'
   });
   this.db = db;
   this.socket = socket;
@@ -59,7 +59,7 @@ var TwitterApp = function(socket,db){
       /**
        * Listening filter event from twitter-node
        */
-      this.twit.stream('filter', {track: key}, function(stream) {
+      this.twit.stream('statuses/filter', {track: key}, function(stream) {
 
       stream.on('data', function(data) {
           var message = data;
