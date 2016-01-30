@@ -39,7 +39,10 @@ io.on('connection', function(socket){
 var TwitterApp = function(socket,db){
 
   this.twit = new twitter({
-      
+      consumer_key: '',
+      consumer_secret: '',
+      access_token_key: '',
+      access_token_secret: ''
   });
   this.db = db;
   this.socket = socket;
